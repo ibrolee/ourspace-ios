@@ -1,0 +1,70 @@
+name: Import OurSpace iOS source archive
+on:
+  push:
+    paths:
+      - OurSpace-iOS-v0.6-EAS-Prepared-Source.zip
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea74a1999973c7ddc3ae0b2cfbfa0c9 # v4.2.2
+        with:
+          persist-credentials: true
+      - name: Expand checked OurSpace archive into repository root
+        env:
+          ZIP: OurSpace-iOS-v0.6-EAS-Prepared-Source.zip
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os, zipfile, stat
+          archive = Path(os.environ["ZIP"])
+          if not archive.is_file():
+              raise SystemExit("Upload OurSpace-iOS-v0.6-EAS-Prepared-Source.zip before running this job")
+          if archive.stat().st_size > 10_000_000:
+              raise SystemExit("Unexpected archive size")
+          prefix = "OurSpace-iOS-v0.6/"
+          entries = 0
+          total = 0
+          with zipfile.ZipFile(archive) as z:
+              for entry in z.infolist():
+                  if entry.is_dir():
+                      continue
+                  name = entry.filename
+                  if not name.startswith(prefix):
+                      raise SystemExit("Unexpected archive root: " + name)
+                  relative = name[len(prefix):]
+                  parts = Path(relative).parts
+                  if not parts or relative.startswith("/") or any(p in ("", ".", "..") for p in parts):
+                      raise SystemExit("Invalid archive entry: " + name)
+                  if ".git" in parts or "node_modules" in parts or (parts[-1].startswith(".env") and parts[-1] != ".env.example"):
+                      raise SystemExit("Blocked repository entry: " + name)
+                  mode = entry.external_attr >> 16
+                  if stat.S_ISLNK(mode):
+                      raise SystemExit("Symlink not allowed: " + name)
+                  entries += 1
+                  total += entry.file_size
+                  if entries > 100 or total > 20_000_000:
+                      raise SystemExit("Archive exceeds limits")
+                  target = Path(relative)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_bytes(z.read(entry))
+          print(f"Imported {entries} safe source files")
+          PY
+      - name: Run standalone source checks
+        run: |
+          node scripts/preflight.mjs
+          node --test tests/*.test.mjs server/test/*.test.mjs
+      - name: Commit source tree, remove upload archive
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f OurSpace-iOS-v0.6-EAS-Prepared-Source.zip
+          git add -A
+          git diff --cached --quiet || git commit -m "Import complete OurSpace iOS v0.6 source"
+          git push
