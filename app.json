@@ -1,0 +1,58 @@
+{
+  "expo": {
+    "name": "OurSpace",
+    "slug": "ourspace-family",
+    "scheme": "ourspace",
+    "version": "0.6.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F8F7F3",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "enableSceneSupport": true
+          }
+        }
+      ],
+      [
+        "expo-sqlite",
+        {
+          "useSQLCipher": true
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow OurSpace to lock your private family information with Face ID."
+        }
+      ],
+      "expo-secure-store",
+      "expo-dev-client",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F8F7F3",
+          "image": "./assets/splash.png",
+          "imageWidth": 210
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ibrolee.ourspace",
+      "buildNumber": "5",
+      "icon": "./assets/icon.png"
+    },
+    "experiments": {
+      "typedRoutes": false
+    },
+    "platforms": [
+      "ios"
+    ],
+    "icon": "./assets/icon.png",
+    "description": "A private offline-first family companion for iPhone and iPad."
+  }
+}
