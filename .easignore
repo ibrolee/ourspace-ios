@@ -1,0 +1,16 @@
+node_modules/
+.expo/
+.git/
+server/
+preview/
+tests/
+*.md
+*.zip
+*.ipa
+*.db
+*.sqlite
+.env*
+!.env.example
+*.p8
+*.mobileprovision
+credentials.json
