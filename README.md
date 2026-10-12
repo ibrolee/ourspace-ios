@@ -25,3 +25,11 @@ This is a **public code repository**. Never commit family photos, real family da
 Prototype: https://ourspace-ios-preview.vercel.app
 
 © OurSpace.
+
+## Import the prepared v0.6 source
+
+The GitHub integration can create and edit text files but cannot upload the existing binary source archive directly. To complete the source import using **one upload**, download the exact archive `OurSpace-iOS-v0.6-EAS-Prepared-Source.zip` from the ChatGPT conversation, then open this repository and choose **Add file → Upload files**. Upload the ZIP without unzipping it. The pinned [source import workflow](.github/workflows/import-source.yml) will unpack and validate the app files, commit the source tree, and delete the ZIP from the branch. Watch the **Actions** tab and confirm it finishes green.
+
+**Until the importer has finished successfully, this repository only contains project scaffolding and is not buildable.** The upload archive is created from the same source as the previously shared 0.6 package, contains no user data, and has been scanned for credential patterns. Do not upload a private/family-data ZIP or certificates.
+
+The import workflow runs only on a push containing the exact archive name. The later iPhone installable build still requires Expo EAS association and Apple signing.
