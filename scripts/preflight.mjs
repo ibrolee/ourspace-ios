@@ -1,0 +1,15 @@
+import {readFileSync,existsSync} from 'node:fs';
+const app=JSON.parse(readFileSync('app.json','utf8')).expo;
+const pkg=JSON.parse(readFileSync('package.json','utf8'));
+const eas=JSON.parse(readFileSync('eas.json','utf8'));
+const fail=msg=>{console.error('Preflight failed:',msg);process.exitCode=1;};
+if(JSON.stringify(app.platforms)!=='["ios"]')fail('Must target iOS only');
+if(!app.ios?.bundleIdentifier)fail('Missing iOS bundle ID');
+const build=app.plugins.find(x=>Array.isArray(x)&&x[0]==='expo-build-properties');
+if(!build?.[1]?.ios?.enableSceneSupport)fail('Missing Xcode 27 scene lifecycle');
+const db=app.plugins.find(x=>Array.isArray(x)&&x[0]==='expo-sqlite');
+if(!db?.[1]?.useSQLCipher)fail('SQLCipher must be enabled');
+if(!eas.build?.preview||eas.build.preview.distribution!=='internal')fail('Missing standalone internal iOS preview');
+if(!pkg.dependencies?.['expo-router']||!pkg.dependencies?.['expo-sqlite'])fail('Missing mobile dependencies');
+for(const p of ['app/_layout.tsx','app/(tabs)/_layout.tsx','app/(tabs)/index.tsx','app/(tabs)/calendar.tsx','app/(tabs)/plans.tsx','app/(tabs)/memories.tsx','app/(tabs)/family.tsx','src/OurSpaceContext.tsx','src/db.ts'])if(!existsSync(p))fail('Missing app module '+p);
+console.log('OurSpace preflight:',process.exitCode?'FAILED':'PASS');
