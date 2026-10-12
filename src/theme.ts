@@ -1,0 +1,1 @@
+export const C={green:'#193D36',green2:'#27584C',gold:'#D5B271',cream:'#F8F7F3',white:'#FFFFFF',ink:'#273631',muted:'#7C8981',pale:'#E9F0EA',blush:'#F8EBE8',lilac:'#ECEAF9',line:'#E9EBE4',orange:'#F3E8D6'} as const;
